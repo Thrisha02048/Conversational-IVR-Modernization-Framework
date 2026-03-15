@@ -1,85 +1,182 @@
-function startCall() {
+let state = {
+session_active:true,
+last_intent:null
+}
 
-document.getElementById("screen").innerHTML =
+function addMessage(sender,text){
 
-"Welcome to Hospital Enquiry System <br><br>" +
+let chat=document.getElementById("chat")
 
-"Press 1 for Visiting Hours <br>" +
+let div=document.createElement("div")
 
-"Press 2 for Doctor Availability <br>" +
+div.innerHTML="<b>"+sender+":</b> "+text
 
-"Press 3 for Hospital Address <br>" +
+chat.appendChild(div)
 
-"Press 4 for Contact Details <br>" +
-
-"Press 5 to Exit";
+chat.scrollTop=chat.scrollHeight
 
 }
 
-function endCall(){
+function detectIntent(text){
 
-document.getElementById("screen").innerHTML =
+text=text.toLowerCase()
 
-"Call Ended <br> Thank you for calling.";
+if(text.includes("visit") || text.includes("timing") || text.includes("hours"))
+return "visiting_hours"
 
-}
+if(text.includes("doctor") || text.includes("specialist"))
+return "doctor_info"
 
-function pressKey(key){
+if(text.includes("emergency") || text.includes("ambulance"))
+return "emergency"
 
-if(key=="1"){
+if(text.includes("appointment") || text.includes("booking"))
+return "appointment"
 
-document.getElementById("screen").innerHTML =
+if(text.includes("location") || text.includes("address"))
+return "location"
 
-"Hospital Visiting Hours <br><br>" +
-
-"Morning: 10 AM - 1 PM <br>" +
-
-"Evening: 4 PM - 7 PM";
-
-}
-
-else if(key=="2"){
-
-document.getElementById("screen").innerHTML =
-
-"Doctor Availability <br><br>" +
-
-"General Doctor: 9 AM - 2 PM <br>" +
-
-"Specialist: 5 PM - 8 PM";
+return "fallback"
 
 }
 
-else if(key=="3"){
+function extractEntity(text){
 
-document.getElementById("screen").innerHTML =
+text=text.toLowerCase()
 
-"Hospital Address <br><br>" +
+if(text.includes("cardiology"))
+return "cardiology"
 
-"ABC Hospital <br>" +
+if(text.includes("orthopedic"))
+return "orthopedic"
 
-"Hyderabad";
-
-}
-
-else if(key=="4"){
-
-document.getElementById("screen").innerHTML =
-
-"Contact Number <br><br>" +
-
-"9876543210";
+return null
 
 }
 
-else if(key=="5"){
+function backendService(intent,entity){
 
-document.getElementById("screen").innerHTML =
+if(intent=="visiting_hours")
+return "Hospital visiting hours are 10 AM to 1 PM and 4 PM to 7 PM."
 
-"Thank you for calling <br>" +
+if(intent=="doctor_info"){
 
-"Goodbye";
+if(entity=="cardiology")
+return "Cardiology doctor is available from 11 AM to 3 PM."
+
+if(entity=="orthopedic")
+return "Orthopedic doctor is available from 10 AM to 2 PM."
+
+return "Doctors are available from 9 AM to 5 PM Monday to Saturday."
 
 }
+
+if(intent=="emergency")
+return "Emergency services are available 24 hours."
+
+if(intent=="appointment")
+return "You can book an appointment at reception between 9 AM and 4 PM."
+
+if(intent=="location")
+return "City Hospital is located near central bus station."
+
+return null
+
+}
+
+function getResponse(intent,entity){
+
+let result=backendService(intent,entity)
+
+if(result!=null)
+return result
+
+return "Sorry I did not understand your request. Please ask about visiting hours, doctors, appointments or emergency services."
+
+}
+
+function speak(text){
+
+let speech=new SpeechSynthesisUtterance(text)
+
+speech.lang="en-IN"
+
+window.speechSynthesis.speak(speech)
+
+}
+
+function processInput(text){
+
+addMessage("You",text)
+
+let intent=detectIntent(text)
+
+let entity=extractEntity(text)
+
+state.last_intent=intent
+
+let response=getResponse(intent,entity)
+
+addMessage("System",response)
+
+speak(response)
+
+}
+
+function sendText(){
+
+let input=document.getElementById("textInput")
+
+let text=input.value
+
+if(text.trim()=="")
+return
+
+input.value=""
+
+processInput(text)
+
+}
+
+function startVoice(){
+
+const recognition=new webkitSpeechRecognition()
+
+recognition.lang="en-IN"
+
+recognition.onresult=function(event){
+
+let text=event.results[0][0].transcript
+
+processInput(text)
+
+}
+
+recognition.start()
+
+}
+
+function resetChat(){
+
+document.getElementById("chat").innerHTML=""
+
+state={session_active:true,last_intent:null}
+
+}
+
+document.getElementById("textInput").addEventListener("keypress",function(e){
+
+if(e.key==="Enter")
+sendText()
+
+})
+
+window.onload=function(){
+
+let welcome="Welcome to City Hospital Conversational IVR. You can ask about visiting hours, doctors, emergency services, appointments or hospital location."
+
+addMessage("System",welcome)
+
+speak(welcome)
 
 }

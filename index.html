@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
-<title>Hospital IVR Simulator</title>
+<title>Hospital Conversational IVR</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -10,45 +11,22 @@
 
 <body>
 
-<h2>Hospital Visiting Hours & General Enquiry IVR</h2>
+<h2>Hospital Conversational IVR System</h2>
 
-<div class="ivr-box">
+<div id="chat"></div>
 
-<h3>Call Status</h3>
+<input id="textInput" placeholder="Ask about hospital services">
 
-<div id="screen">
+<br><br>
 
-Press Start Call
+<button onclick="sendText()">Send</button>
 
-</div>
+<button onclick="startVoice()">🎤 Speak</button>
 
-<div class="call-buttons">
-
-<button onclick="startCall()">Start Call</button>
-
-<button onclick="endCall()">End Call</button>
-
-</div>
-
-<h3>Menu Options</h3>
-
-<div class="menu-buttons">
-
-<button onclick="pressKey('1')">1 Visiting Hours</button>
-
-<button onclick="pressKey('2')">2 Doctors</button>
-
-<button onclick="pressKey('3')">3 Address</button>
-
-<button onclick="pressKey('4')">4 Contact</button>
-
-<button onclick="pressKey('5')">5 Exit</button>
-
-</div>
-
-</div>
+<button onclick="resetChat()">Reset</button>
 
 <script src="script.js"></script>
 
 </body>
+
 </html>
