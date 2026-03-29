@@ -1,17 +1,25 @@
-# Conversational IVR Modernization Framework
+# Hospital IVR System
 
-## Milestone 1: Legacy System Analysis and Requirements Gathering
+## 📌 Project Description
+This project simulates a hospital IVR (Interactive Voice Response) system that allows patients to book appointments using voice interaction.
 
-This project analyzes an existing IVR system and proposes a conversational AI-based IVR solution using Twilio.
+## 🚀 Features
+- User detail collection
+- Department selection
+- Doctor selection
+- Appointment booking
+- Text-to-Speech support
+- Phone-like UI interface
 
-## Objective
-Modernize traditional IVR into conversational AI IVR.
+## 🛠️ Technologies Used
+- HTML, CSS, JavaScript
+- Web Speech API
 
-## Tools Used
-- Twilio
-- GitHub
-- Node.js
+## 📂 Documents
+- Agile Methodology
+- Unit Testing
+- Defect Tracker
 
-## Author
-Thrisha
-Infosys Springboard Intern 2026
+
+## 📜 License
+MIT License
