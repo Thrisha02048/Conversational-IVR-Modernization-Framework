@@ -25,7 +25,7 @@ body {
   overflow:hidden;
 }
 
-
+/* Incoming */
 .incoming {
   margin-top:120px;
 }
@@ -113,7 +113,7 @@ let step = 0;
 let data = {};
 let sec = 0;
 
-
+// TIMER
 function startTimer(){
   setInterval(()=>{
     sec++;
@@ -123,7 +123,7 @@ function startTimer(){
   },1000);
 }
 
-
+// VOICE
 function speak(text){
   let speech = new SpeechSynthesisUtterance(text);
   speech.rate = 0.9;
@@ -131,14 +131,14 @@ function speak(text){
   speechSynthesis.speak(speech);
 }
 
-
+// ACCEPT CALL
 function acceptCall(){
   document.getElementById("incoming").classList.add("hidden");
   document.getElementById("ivr").classList.remove("hidden");
 
   startTimer();
 
-  
+  // IVR Welcome
   speak("Welcome to hospital IVR system");
 
   setTimeout(()=>{
@@ -146,17 +146,17 @@ function acceptCall(){
   },1500);
 }
 
-
+// END CALL
 function endCall(){
   alert("Call Ended");
   location.reload();
 }
 
-
+// FLOW
 function nextStep(){
   let c = document.getElementById("content");
 
-  
+  // STEP 1 - USER DETAILS
   if(step===0){
     c.innerHTML = `
     <p>Enter Details</p>
@@ -173,7 +173,7 @@ function nextStep(){
     speak("Please enter your details");
   }
 
- 
+  // STEP 2 - DEPARTMENT
   else if(step===1){
     c.innerHTML = `
     <p>Select Department</p>
@@ -190,7 +190,7 @@ function nextStep(){
     speak("Select department");
   }
 
-  
+  // STEP 3 - DOCTOR
   else if(step===2){
     c.innerHTML = `
     <p>Select Doctor</p>
@@ -207,7 +207,7 @@ function nextStep(){
     speak("Select doctor");
   }
 
- 
+  // STEP 4 - TIME
   else if(step===3){
     c.innerHTML = `
     <p>Select Time</p>
@@ -223,7 +223,7 @@ function nextStep(){
     speak("Select appointment time");
   }
 
-  
+  // STEP 5 - CONFIRMATION
   else if(step===4){
     c.innerHTML = `
     <h3>✅ Appointment Confirmed</h3>
@@ -235,14 +235,14 @@ function nextStep(){
   }
 }
 
-
+// SAVE USER
 function saveUser(){
   let name = document.getElementById("name").value.trim();
   let age = document.getElementById("age").value.trim();
   let gender = document.getElementById("gender").value;
   let phone = document.getElementById("phone").value.trim();
 
-  
+  // FIXED VALIDATION
   if(name==="" || age==="" || gender==="" || phone===""){
     alert("Please fill all fields");
     return;
@@ -254,20 +254,21 @@ function saveUser(){
   nextStep();
 }
 
+// SAVE DEPT
 function saveDept(){
   data.dept = document.getElementById("dept").value;
   step++;
   nextStep();
 }
 
-
+// SAVE DOCTOR
 function saveDoctor(){
   data.doctor = document.getElementById("doctor").value;
   step++;
   nextStep();
 }
 
-
+// CONFIRM
 function confirmBooking(){
   let time = document.getElementById("time").value;
 
