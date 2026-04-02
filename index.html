@@ -1,94 +1,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Hospital IVR Call</title>
+<title>Hospital IVR</title>
 
 <style>
 body {
-  margin: 0;
-  background: #000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-family: Arial;
+  margin:0;
+  background:black;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:Arial;
 }
 
 .phone {
-  width: 320px;
-  height: 640px;
-  background: linear-gradient(to bottom, #0a0a0a, #222);
-  border-radius: 35px;
-  color: white;
-  text-align: center;
-  padding: 20px;
-  box-shadow: 0 0 25px black;
-  position: relative;
+  width:320px;
+  height:640px;
+  background:linear-gradient(to bottom,#000,#222);
+  border-radius:40px;
+  color:white;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
 }
 
-.title {
-  margin-top: 20px;
-  font-size: 18px;
+
+.incoming {
+  margin-top:120px;
 }
+
+.call-buttons {
+  position:absolute;
+  bottom:60px;
+  width:100%;
+}
+
+.circle {
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  line-height:70px;
+  font-size:26px;
+  display:inline-block;
+  margin:20px;
+  cursor:pointer;
+}
+
+.green { background:#00c853; }
+.red { background:#d50000; }
+
+.hidden { display:none; }
 
 .timer {
-  font-size: 14px;
-  color: #aaa;
-  margin: 5px;
+  margin-top:15px;
+  color:#aaa;
 }
 
-.ivr-text {
-  margin-top: 30px;
-  min-height: 80px;
-  font-size: 15px;
+.content {
+  margin-top:30px;
 }
 
 input, select {
-  width: 85%;
-  padding: 8px;
-  margin: 8px;
-  border-radius: 10px;
-  border: none;
+  width:85%;
+  padding:10px;
+  margin:6px;
+  border-radius:10px;
+  border:none;
 }
 
 button {
-  padding: 10px 15px;
-  margin: 10px;
-  border-radius: 20px;
-  border: none;
-  background: #444;
-  color: white;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #666;
-}
-
-.controls {
-  position: absolute;
-  bottom: 30px;
-  width: 100%;
-}
-
-.call-btn {
-  width: 65px;
-  height: 65px;
-  border-radius: 50%;
-  line-height: 65px;
-  display: inline-block;
-  margin: 10px;
-  font-size: 22px;
-}
-
-.green { background: green; }
-.red { background: red; }
-
-.confirm {
-  background: #1e7e34;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 15px;
+  padding:10px;
+  border-radius:20px;
+  border:none;
+  background:#28a745;
+  color:white;
 }
 </style>
 </head>
@@ -96,158 +82,206 @@ button:hover {
 <body>
 
 <div class="phone">
-  <div class="title">📞 CarePlus Hospital</div>
-  <div class="timer" id="timer">00:00</div>
 
-  <div class="ivr-text" id="text">Tap call to start</div>
+  <!-- Incoming Call -->
+  <div id="incoming" class="incoming">
+    <h2>📞 Incoming Call</h2>
+    <p>CarePlus Hospital</p>
 
-  <div id="ui"></div>
-
-  <div class="controls">
-    <div class="call-btn green" onclick="startCall()">📞</div>
-    <div class="call-btn red" onclick="endCall()">❌</div>
+    <div class="call-buttons">
+      <div class="circle green" onclick="acceptCall()">📞</div>
+      <div class="circle red" onclick="endCall()">❌</div>
+    </div>
   </div>
+
+  <!-- IVR -->
+  <div id="ivr" class="hidden">
+    <h3 style="margin-top:20px;">Hospital IVR</h3>
+    <div class="timer" id="timer">00:00</div>
+    <div class="content" id="content"></div>
+
+    <div class="call-buttons">
+      <div class="circle red" onclick="endCall()">❌</div>
+    </div>
+  </div>
+
 </div>
 
 <script>
-let seconds = 0;
-let interval;
 
-// TIMER
-function startTimer() {
-  interval = setInterval(() => {
-    seconds++;
-    let m = String(Math.floor(seconds/60)).padStart(2,'0');
-    let s = String(seconds%60).padStart(2,'0');
-    document.getElementById("timer").innerText = m + ":" + s;
+let step = 0;
+let data = {};
+let sec = 0;
+
+
+function startTimer(){
+  setInterval(()=>{
+    sec++;
+    let m = String(Math.floor(sec/60)).padStart(2,'0');
+    let s = String(sec%60).padStart(2,'0');
+    document.getElementById("timer").innerText = m+":"+s;
   },1000);
 }
 
-// SPEECH
+
 function speak(text){
-  let sp = new SpeechSynthesisUtterance(text);
+  let speech = new SpeechSynthesisUtterance(text);
+  speech.rate = 0.9;
   speechSynthesis.cancel();
-  speechSynthesis.speak(sp);
+  speechSynthesis.speak(speech);
 }
 
-// START CALL
-function startCall(){
+
+function acceptCall(){
+  document.getElementById("incoming").classList.add("hidden");
+  document.getElementById("ivr").classList.remove("hidden");
+
   startTimer();
-  step1();
+
+  
+  speak("Welcome to hospital IVR system");
+
+  setTimeout(()=>{
+    nextStep();
+  },1500);
 }
 
-// END CALL
+
 function endCall(){
+  alert("Call Ended");
   location.reload();
 }
 
-// STEP 1: USER DETAILS
-function step1(){
-  let t = "Welcome to CarePlus Hospital. Please enter your name and phone number.";
-  document.getElementById("text").innerText = t;
-  speak(t);
 
-  document.getElementById("ui").innerHTML = `
-    <input id="name" placeholder="Enter Name">
+function nextStep(){
+  let c = document.getElementById("content");
+
+  
+  if(step===0){
+    c.innerHTML = `
+    <p>Enter Details</p>
+    <input id="name" placeholder="Name">
+    <input id="age" type="number" placeholder="Age">
+    <select id="gender">
+      <option value="">Select Gender</option>
+      <option>Male</option>
+      <option>Female</option>
+    </select>
     <input id="phone" placeholder="Phone Number">
-    <button onclick="step2()">Next</button>
-  `;
-}
+    <button onclick="saveUser()">Next</button>
+    `;
+    speak("Please enter your details");
+  }
 
-// STEP 2: SYMPTOMS
-function step2(){
-  let t = "Please select your symptom.";
-  document.getElementById("text").innerText = t;
-  speak(t);
-
-  document.getElementById("ui").innerHTML = `
-    <select id="symptom">
-      <option>Chest Pain</option>
-      <option>Fever</option>
-      <option>Skin Allergy</option>
-      <option>Headache</option>
+ 
+  else if(step===1){
+    c.innerHTML = `
+    <p>Select Department</p>
+    <select id="dept">
+      <option>General Medicine</option>
+      <option>Cardiology</option>
+      <option>Dermatology</option>
+      <option>Orthopedics</option>
+      <option>Neurology</option>
+      <option>Pediatrics</option>
     </select>
-    <button onclick="step3()">Next</button>
-  `;
-}
-
-// STEP 3: DOCTORS
-function step3(){
-  let symptom = document.getElementById("symptom").value;
-  let doctors = "";
-
-  if(symptom=="Chest Pain"){
-    doctors = `
-    <option value="Dr. Rao (Cardiologist, 10 yrs)">Dr. Rao - Cardiologist (10 yrs)</option>
-    <option value="Dr. Sharma (Cardiologist, 8 yrs)">Dr. Sharma - Cardiologist (8 yrs)</option>`;
-  }
-  else if(symptom=="Fever"){
-    doctors = `
-    <option value="Dr. Priya (General, 5 yrs)">Dr. Priya - General (5 yrs)</option>
-    <option value="Dr. Kumar (General, 7 yrs)">Dr. Kumar - General (7 yrs)</option>`;
-  }
-  else if(symptom=="Skin Allergy"){
-    doctors = `
-    <option value="Dr. Meena (Dermatologist, 6 yrs)">Dr. Meena - Dermatologist (6 yrs)</option>
-    <option value="Dr. John (Dermatologist, 9 yrs)">Dr. John - Dermatologist (9 yrs)</option>`;
-  }
-  else {
-    doctors = `
-    <option value="Dr. Arjun (Neurologist, 12 yrs)">Dr. Arjun - Neurologist (12 yrs)</option>
-    <option value="Dr. Devi (Neurologist, 10 yrs)">Dr. Devi - Neurologist (10 yrs)</option>`;
+    <button onclick="saveDept()">Next</button>
+    `;
+    speak("Select department");
   }
 
-  let t = "Please select your doctor.";
-  document.getElementById("text").innerText = t;
-  speak(t);
+  
+  else if(step===2){
+    c.innerHTML = `
+    <p>Select Doctor</p>
+    <select id="doctor">
+      <option>Dr Priya - 5 yrs - Fever Specialist</option>
+      <option>Dr Kumar - 7 yrs - General Physician</option>
+      <option>Dr Rao - 10 yrs - Cardiologist</option>
+      <option>Dr Meena - 8 yrs - Dermatologist</option>
+      <option>Dr Arjun - 12 yrs - Neurologist</option>
+      <option>Dr Kavya - 6 yrs - Pediatrician</option>
+    </select>
+    <button onclick="saveDoctor()">Next</button>
+    `;
+    speak("Select doctor");
+  }
 
-  document.getElementById("ui").innerHTML = `
-    <select id="doctor">${doctors}</select>
-    <button onclick="step4()">Next</button>
-  `;
-}
-
-// STEP 4: TIME
-function step4(){
-  let t = "Please select your appointment time.";
-  document.getElementById("text").innerText = t;
-  speak(t);
-
-  document.getElementById("ui").innerHTML = `
+ 
+  else if(step===3){
+    c.innerHTML = `
+    <p>Select Time</p>
     <select id="time">
-      <option value="10:00 AM">10:00 AM</option>
-      <option value="11:30 AM">11:30 AM</option>
-      <option value="2:00 PM">2:00 PM</option>
-      <option value="4:00 PM">4:00 PM</option>
+      <option value="">Choose Time</option>
+      <option>10:00 AM</option>
+      <option>11:30 AM</option>
+      <option>2:00 PM</option>
+      <option>4:00 PM</option>
     </select>
-    <button onclick="confirmBooking()">Confirm Appointment</button>
-  `;
+    <button onclick="confirmBooking()">Confirm</button>
+    `;
+    speak("Select appointment time");
+  }
+
+  
+  else if(step===4){
+    c.innerHTML = `
+    <h3>✅ Appointment Confirmed</h3>
+    <p><b>Name:</b> ${data.name}</p>
+    <p><b>Doctor:</b> ${data.doctor}</p>
+    <p><b>Time:</b> ${data.time}</p>
+    `;
+    speak("Your appointment is confirmed. Thank you");
+  }
 }
 
-// FINAL CONFIRMATION (FIXED)
+
+function saveUser(){
+  let name = document.getElementById("name").value.trim();
+  let age = document.getElementById("age").value.trim();
+  let gender = document.getElementById("gender").value;
+  let phone = document.getElementById("phone").value.trim();
+
+  
+  if(name==="" || age==="" || gender==="" || phone===""){
+    alert("Please fill all fields");
+    return;
+  }
+
+  data = {name, age, gender, phone};
+
+  step++;
+  nextStep();
+}
+
+function saveDept(){
+  data.dept = document.getElementById("dept").value;
+  step++;
+  nextStep();
+}
+
+
+function saveDoctor(){
+  data.doctor = document.getElementById("doctor").value;
+  step++;
+  nextStep();
+}
+
+
 function confirmBooking(){
-  let name = document.getElementById("name")?.value || "User";
-  let phone = document.getElementById("phone")?.value || "N/A";
-  let doctor = document.getElementById("doctor")?.value || "Doctor";
-  let time = document.getElementById("time")?.value || "Time";
+  let time = document.getElementById("time").value;
 
-  clearInterval(interval);
+  if(time===""){
+    alert("Please select time");
+    return;
+  }
 
-  let t = "Your appointment is confirmed. Thank you.";
-  document.getElementById("text").innerText = t;
-  speak(t);
+  data.time = time;
 
-  document.getElementById("ui").innerHTML = `
-    <div class="confirm">
-      ✅ Appointment Confirmed<br><br>
-      👤 Name: ${name}<br>
-      📞 Phone: ${phone}<br>
-      🩺 Doctor: ${doctor}<br>
-      ⏰ Time: ${time}<br><br>
-      ⏱ Call Duration: ${document.getElementById("timer").innerText}
-    </div>
-  `;
+  step++;
+  nextStep();
 }
+
 </script>
 
 </body>
